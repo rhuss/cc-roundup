@@ -73,6 +73,8 @@ A good follow-up:
 - is one or two sentences, in the user's voice, without greetings or sign-offs,
 - never asks the agent to do something destructive the user did not ask for (deleting branches, force pushes, closing PRs).
 
+The `act message` tool puts a fixed relay line above every follow-up, telling the agent the text comes from its user through roundup and that the answer belongs in its own conversation. Do not add your own "from", relay or reply-to line to a draft.
+
 When you cannot tell what the user wants (for example "Option A or B?"), still draft the most neutral useful answer and the user will edit it before sending. Example: "Let's go with option A." is fine because the user reviews it.
 
 ## Worked examples
