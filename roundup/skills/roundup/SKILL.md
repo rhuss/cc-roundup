@@ -93,7 +93,12 @@ The steps always run in this order. Each one is optional, and the user can stop 
 
 1. Build the batch from the overview JSON: every entry with `action.verb == "close"` and `action.preselected == true` (the *done, close it* sessions). If the batch is empty and no session is `addable_to_close`, skip this step.
 2. Show the batch as a numbered list (name, workspace, reason). Below it, list the sessions the user may add: entries with `addable_to_close == true` (*stale, decide* sessions, hibernated panes, agents that exited to their shell, sessions with an unknown agent state).
-3. Ask once: confirm the batch as shown, remove entries, add entries, or skip closing. Apply the user's edits and show the final batch again only if it changed. The user confirms the final batch once; do not ask per session. When the user adds a session that also has a pending copy-back (`action.verb == "copyback"`), warn that closing it does not lose the draft, but its copy-back will then be skipped because the session was closed earlier in this run; suggest leaving it out of the batch until the copy-back step is done.
+3. Ask once, as a single-choice question with your harness's question tool (see 8b step 2 for the tool and the numbered-list fallback). The question carries the numbered batch (name and workspace per line) and the addable sessions, since the dialog can hide the text above it. Options, in this order:
+   - **Close all**: close the batch as shown.
+   - **Adjust batch**: the user then says which numbers to remove and which addable sessions to add (also accepted directly through the free-text "Other" answer).
+   - **Skip closing**: close nothing.
+
+   Apply the user's edits and show the final batch again only if it changed, then ask once more with **Close all** and **Skip closing**. The user confirms the final batch once; do not ask per session. When the user adds a session that also has a pending copy-back (`action.verb == "copyback"`), warn that closing it does not lose the draft, but its copy-back will then be skipped because the session was closed earlier in this run; suggest leaving it out of the batch until the copy-back step is done.
 4. Declining or skipping closes nothing. Record every batch entry as "not reached".
 5. For each entry of the confirmed batch, in order:
 
@@ -115,7 +120,13 @@ If the user asks for a follow-up for a *stale, decide* session (or any other ses
 For each candidate, one at a time:
 
 1. Show the session name, its reason and the drafted text (`action.text`).
-2. Ask: send as is, edit then send, or skip. You may also offer to stop the remaining follow-ups.
+2. Ask as a single-choice question with your harness's question tool (Claude Code: `AskUserQuestion`; a harness without one gets the same options as a numbered list to answer with a number). The question dialog can hide the text above it, so the question itself must carry the session name and the full draft, quoted. Options, in this order:
+   - **Send as is**: send the draft unchanged.
+   - **Send alternative** (only when you wrote one, for example a cautious version for a draft flagged under the hard rules): put the full alternative text into the option description.
+   - **Skip**: send nothing for this session.
+   - **Stop follow-ups**: skip this and all remaining follow-ups (records them as not reached).
+
+   Editing goes through the tool's free-text answer ("Other"): treat that answer as the new text (or, if it reads as an instruction such as "make it shorter", apply it to the draft), show the result back and ask once more (send or skip) before sending it. Never send free text the user did not confirm as the message.
 3. On send: write the user's final text, exactly as confirmed, with your file-writing tool to `RUN/followup-<n>.txt` (`<n>` counts the follow-ups of this run). Never put the text itself into a shell command line or a heredoc. Then run:
 
    ```bash
@@ -141,7 +152,7 @@ For each candidate, one at a time:
 
 1. Show the session name and the first line of the copied text (from the recap).
 2. Say clearly that copying replaces the current clipboard, and that a later copy-back in this review will replace this one, so the user should paste it before confirming the next.
-3. Ask: copy now, or skip.
+3. Ask as a single-choice question with your harness's question tool (see 8b step 2). The question carries the session name, the first line of the draft and the clipboard warning from step 2. Options: **Copy now**, **Skip**, **Stop copy-backs** (skip this and all remaining copy-backs, recorded as not reached).
 4. On copy:
 
    ```bash
