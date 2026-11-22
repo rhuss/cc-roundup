@@ -1,0 +1,161 @@
+{
+ "ok": true,
+ "conversations": [
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000101",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000102",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": true
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000106",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000107",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000108",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000109",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000111",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000113",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000114",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000115",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000201",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "claude",
+   "account": "",
+   "session": "00000000-0000-4000-8000-000000000204",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  },
+  {
+   "provider": "codex",
+   "account": "",
+   "session": "019a0000-0000-7000-8000-000000000203",
+   "title": "",
+   "first": "",
+   "last": "",
+   "cwd": "/Users/me/src",
+   "branch": "main",
+   "updated_at": 1795345200,
+   "interrupted": false
+  }
+ ]
+}

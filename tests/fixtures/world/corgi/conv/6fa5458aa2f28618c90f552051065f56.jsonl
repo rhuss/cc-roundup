@@ -1,0 +1,4 @@
+{"role": "user", "timestamp": 1795172400000, "ref": "10", "text": "Open a PR for the login flow."}
+{"role": "assistant", "timestamp": 1795216500000, "ref": "20", "text": "Opened https://github.com/me/app/pull/5 first, then replaced it."}
+{"role": "user", "timestamp": 1795260600000, "ref": "30", "text": "Merge the new one."}
+{"role": "assistant", "timestamp": 1795304700000, "ref": "40", "text": "Merged https://github.com/me/app/pull/6 and deleted the branch."}

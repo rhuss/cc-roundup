@@ -1,0 +1,170 @@
+{
+ "format": "roundup-judgments",
+ "version": 1,
+ "sessions": {
+  "claude:00000000-0000-4000-8000-000000000001": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Database migration on staging",
+   "stopped": "Waiting for approval to run make migrate",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000002": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Refactor of the session store",
+   "stopped": "Agent is editing the store module",
+   "followup": null
+  },
+  "codex:019a0000-0000-7000-8000-000000000003": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Summary of the docs folder",
+   "stopped": "Agent is starting up",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000004": {
+   "unanswered_agent": false,
+   "task_finished": true,
+   "about": "Parser bug fix",
+   "stopped": "Committed in two commits, not pushed",
+   "followup": "Please push the branch and open a PR.",
+   "judgment_note": "parser fix committed"
+  },
+  "claude:00000000-0000-4000-8000-000000000005": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Slack note about the WG kickoff",
+   "stopped": "Note copied to the clipboard",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000006": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Login flow for the app",
+   "stopped": "PR #6 merged, branch deleted",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000007": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Docs fix",
+   "stopped": "PR #7 open for review",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000008": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Alternative cache approach",
+   "stopped": "PR #8 closed without merge",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000009": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Infra cleanup branch",
+   "stopped": "First cleanup step committed locally",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000010": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Unknown (conversation unreadable)",
+   "stopped": "Unknown",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000011": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "API client regeneration",
+   "stopped": "Last turn was interrupted",
+   "followup": "Your last turn was interrupted. Please finish regenerating the API client."
+  },
+  "claude:00000000-0000-4000-8000-000000000012": {
+   "unanswered_agent": true,
+   "task_finished": false,
+   "about": "Login form wiring",
+   "stopped": "Asked whether to add a password reset link",
+   "followup": "Yes, please add the password reset link to the footer.",
+   "judgment_note": "add password reset link?"
+  },
+  "claude:00000000-0000-4000-8000-000000000013": {
+   "unanswered_agent": false,
+   "task_finished": true,
+   "about": "Dashboards on the new endpoint",
+   "stopped": "All three dashboards migrated, tests pass",
+   "followup": null,
+   "judgment_note": "dashboards migrated, tests pass"
+  },
+  "claude:00000000-0000-4000-8000-000000000014": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Caching options for search results",
+   "stopped": "User deferred the decision",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000015": {
+   "unanswered_agent": false,
+   "task_finished": false,
+   "about": "Flaky CI test investigation",
+   "stopped": "First look at the CI log",
+   "followup": null
+  },
+  "claude:00000000-0000-4000-8000-000000000016": {
+   "unanswered_agent": true,
+   "task_finished": false,
+   "about": "Memory leak in the image service",
+   "stopped": "Proposed an LRU limit for the cache",
+   "followup": "Yes, please implement the LRU limit.",
+   "judgment_note": "implement LRU limit?"
+  },
+  "claude:00000000-0000-4000-8000-000000000017": {
+   "unanswered_agent": false,
+   "task_finished": true,
+   "about": "Release v1.2.0",
+   "stopped": "Tagged, published, changelog updated",
+   "followup": null,
+   "judgment_note": "v1.2.0 released"
+  },
+  "codex:019a0000-0000-7000-8000-000000000018": {
+   "unanswered_agent": true,
+   "task_finished": false,
+   "about": "CLI flag rename",
+   "stopped": "Offered to update the README",
+   "followup": "Yes, please update the README with the new flags.",
+   "judgment_note": "offered README update"
+  },
+  "claude:00000000-0000-4000-8000-000000000019": {
+   "unanswered_agent": false,
+   "task_finished": true,
+   "about": "Quarterly report",
+   "stopped": "report.md written with all sections",
+   "followup": null,
+   "judgment_note": "report.md written"
+  },
+  "claude:00000000-0000-4000-8000-000000000020": {
+   "unanswered_agent": false,
+   "task_finished": true,
+   "about": "Typo in the config loader",
+   "stopped": "Fixed and verified",
+   "followup": null,
+   "judgment_note": "typo fixed and verified"
+  },
+  "claude:00000000-0000-4000-8000-000000000021": {
+   "unanswered_agent": true,
+   "task_finished": false,
+   "about": "Schema migration plan",
+   "stopped": "Asked to choose option A or B",
+   "followup": "Let's go with option A.",
+   "judgment_note": "option A or B?"
+  },
+  "claude:00000000-0000-4000-8000-000000000022": {
+   "unanswered_agent": true,
+   "task_finished": false,
+   "about": "Incident timeline summary",
+   "stopped": "Asked whether to post it",
+   "followup": "Yes, please post it.",
+   "judgment_note": "post to incident channel?"
+  }
+ }
+}

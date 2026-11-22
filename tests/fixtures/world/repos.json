@@ -1,0 +1,48 @@
+{
+ "repos/r01": {
+  "dirty": true
+ },
+ "repos/r02": {
+  "dirty": true
+ },
+ "repos/r04": {
+  "ahead": 2
+ },
+ "repos/r05": {
+  "kind": "plain_dir"
+ },
+ "repos/r06": {
+  "upstream": "gone"
+ },
+ "repos/r07": {},
+ "repos/r08": {},
+ "repos/r09": {
+  "upstream": "none"
+ },
+ "repos/r10": {
+  "kind": "plain_dir"
+ },
+ "repos/r11": {},
+ "repos/r12": {},
+ "repos/r13": {},
+ "repos/r14": {
+  "kind": "plain_dir"
+ },
+ "repos/r15": {
+  "kind": "plain_dir"
+ },
+ "repos/r16": {},
+ "repos/r17": {},
+ "repos/r18": {},
+ "repos/r19": {},
+ "repos/shared": {
+  "dirty": true
+ },
+ "repos/shared-link": {
+  "kind": "symlink",
+  "to": "repos/shared"
+ },
+ "repos/r22": {
+  "kind": "plain_dir"
+ }
+}

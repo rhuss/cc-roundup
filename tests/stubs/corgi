@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Fake `corgi` for tests. Never talks to a real runtime.
+
+Logs every invocation as one JSON line {"tool","argv","stdin"} to
+$ROUNDUP_STUB_LOG and answers from $ROUNDUP_STUB_FIXTURES/corgi/ (or the
+fixture directory itself when it has no corgi/ subdirectory) by a key derived
+from argv:
+
+  list ...                      -> list.json
+  grep --workspace ...          -> grep-bulk.jsonl
+  grep --session P:ID ...       -> grep-session-<P>-<ID>.jsonl
+  history ...                   -> history.json
+  message ...                   -> message-reply.json
+  pane close ID                 -> close-reply.json
+  headless stop P S             -> headless-stop-reply.json
+
+For a reply file F, optional F.exit holds the exit code and F.stderr the
+stderr text. A missing reply file exits 1 (grep prints Corgi's "0 sessions"
+line). ROUNDUP_STUB_CORGI_FAIL=unreachable makes every call fail like an
+unreachable runtime. @FIXTURES@ and @ROOT@ in replies are replaced with
+$ROUNDUP_STUB_FIXTURES and $ROUNDUP_STUB_ROOT.
+"""
+import json
+import os
+import sys
+
+
+def log(argv, stdin):
+    path = os.environ.get("ROUNDUP_STUB_LOG")
+    if path:
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps({"tool": "corgi", "argv": argv, "stdin": stdin}) + "\n")
+
+
+def key_for(argv):
+    if not argv:
+        return None
+    cmd = argv[0]
+    if cmd == "list":
+        return "list.json"
+    if cmd == "grep":
+        if "--session" in argv:
+            sess = argv[argv.index("--session") + 1]
+            provider, _, sid = sess.partition(":")
+            return "grep-session-%s-%s.jsonl" % (provider, sid)
+        return "grep-bulk.jsonl"
+    if cmd == "history":
+        return "history.json"
+    if cmd == "message":
+        return "message-reply.json"
+    if cmd == "pane" and len(argv) > 1 and argv[1] == "close":
+        return "close-reply.json"
+    if cmd == "headless" and len(argv) > 1 and argv[1] == "stop":
+        return "headless-stop-reply.json"
+    return None
+
+
+def main():
+    argv = sys.argv[1:]
+    stdin = ""
+    if "--stdin" in argv and not sys.stdin.isatty():
+        try:
+            stdin = sys.stdin.read()
+        except Exception:
+            stdin = ""
+    log(argv, stdin)
+
+    if os.environ.get("ROUNDUP_STUB_CORGI_FAIL") == "unreachable":
+        sys.stderr.write('{"ok":false,"err":"connect ENOENT /nonexistent"}\n')
+        return 2
+
+    fixtures = os.environ.get("ROUNDUP_STUB_FIXTURES", "")
+    base = os.path.join(fixtures, "corgi")
+    if not os.path.isdir(base):
+        base = fixtures
+    key = key_for(argv)
+    if key is None:
+        sys.stderr.write("stub corgi: unsupported command %r\n" % (argv,))
+        return 2
+    path = os.path.join(base, key)
+    code = 0
+    if os.path.exists(path + ".exit"):
+        with open(path + ".exit", encoding="utf-8") as fh:
+            code = int(fh.read().strip() or "0")
+    if os.path.exists(path + ".stderr"):
+        with open(path + ".stderr", encoding="utf-8") as fh:
+            sys.stderr.write(fh.read())
+    if not os.path.exists(path):
+        if argv[0] == "grep":
+            sys.stderr.write("0 sessions / 1 candidates; 1.0ms\n")
+        elif not os.path.exists(path + ".exit"):
+            sys.stderr.write("stub corgi: no fixture %s\n" % key)
+        return code or 1
+    with open(path, encoding="utf-8") as fh:
+        data = fh.read()
+    data = data.replace("@FIXTURES@", fixtures).replace(
+        "@ROOT@", os.environ.get("ROUNDUP_STUB_ROOT", "")
+    )
+    sys.stdout.write(data)
+    return code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

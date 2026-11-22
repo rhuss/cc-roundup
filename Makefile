@@ -1,4 +1,4 @@
-.PHONY: validate install uninstall reinstall install-codex help
+.PHONY: validate test install uninstall reinstall install-codex help
 
 MARKETPLACE := cc-roundup-plugin-development
 PLUGIN := cc-roundup@$(MARKETPLACE)
@@ -6,6 +6,9 @@ PLUGIN := cc-roundup@$(MARKETPLACE)
 validate:
 	claude plugin validate ./
 	claude plugin validate ./roundup/
+
+test:
+	python3 -m unittest discover -s tests -t .
 
 install:
 	@if claude plugin marketplace add ./ 2>&1 | grep -q "already installed"; then \
@@ -35,6 +38,7 @@ reinstall: uninstall install
 help:
 	@echo "Available targets:"
 	@echo "  validate      - Validate plugin manifests (Claude Code)"
+	@echo "  test          - Run the offline test suite (no Corgi, network or clipboard)"
 	@echo "  install       - Install plugin via Claude Code marketplace"
 	@echo "  install-codex - Install plugin via Codex marketplace"
 	@echo "  uninstall     - Remove plugin and marketplace (Claude Code)"

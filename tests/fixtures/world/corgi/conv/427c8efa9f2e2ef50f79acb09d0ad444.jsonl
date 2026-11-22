@@ -1,0 +1,4 @@
+{"role": "user", "timestamp": 1794913200000, "ref": "10", "text": "What are our options for caching the search results?"}
+{"role": "assistant", "timestamp": 1795022100000, "ref": "20", "text": "Options: an in-process LRU, Redis, or HTTP caching at the proxy."}
+{"role": "user", "timestamp": 1795131000000, "ref": "30", "text": "I'll think about it and come back to this."}
+{"role": "assistant", "timestamp": 1795239900000, "ref": "40", "text": "Sounds good. Let me know if you need anything else."}

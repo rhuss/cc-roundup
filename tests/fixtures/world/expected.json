@@ -1,0 +1,137 @@
+{
+ "caller_pane": 900,
+ "sessions": {
+  "claude:00000000-0000-4000-8000-000000000001": {
+   "category": "waiting_on_you",
+   "rule": 0,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000002": {
+   "category": "waiting_on_others",
+   "rule": 1,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "codex:019a0000-0000-7000-8000-000000000003": {
+   "category": "waiting_on_others",
+   "rule": 1,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000004": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "mechanical",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000005": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "mechanical",
+   "action": "copyback"
+  },
+  "claude:00000000-0000-4000-8000-000000000006": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "mechanical",
+   "action": "close"
+  },
+  "claude:00000000-0000-4000-8000-000000000007": {
+   "category": "waiting_on_others",
+   "rule": 3,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000008": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "mechanical",
+   "action": "close"
+  },
+  "claude:00000000-0000-4000-8000-000000000009": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000010": {
+   "category": "stale_decide",
+   "rule": 5,
+   "decided_by": "mechanical",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000011": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "mechanical",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000012": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "judged",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000013": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "judged",
+   "action": "close"
+  },
+  "claude:00000000-0000-4000-8000-000000000014": {
+   "category": "stale_decide",
+   "rule": 5,
+   "decided_by": "judged",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000015": {
+   "category": "stale_decide",
+   "rule": 5,
+   "decided_by": "judged",
+   "action": null
+  },
+  "claude:00000000-0000-4000-8000-000000000016": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "judged",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000017": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "judged",
+   "action": "close"
+  },
+  "codex:019a0000-0000-7000-8000-000000000018": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "judged",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000019": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "judged",
+   "action": "close"
+  },
+  "claude:00000000-0000-4000-8000-000000000020": {
+   "category": "done_close_it",
+   "rule": 4,
+   "decided_by": "judged",
+   "action": "close"
+  },
+  "claude:00000000-0000-4000-8000-000000000021": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "judged",
+   "action": "message"
+  },
+  "claude:00000000-0000-4000-8000-000000000022": {
+   "category": "waiting_on_you",
+   "rule": 2,
+   "decided_by": "judged",
+   "action": "message"
+  }
+ }
+}

@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""Entry point for the roundup command line tool.
+
+Resolves its own real path (so symlinks work), puts <plugin root>/lib on the
+import path and hands over to roundup.cli.main(). Runs from any working
+directory.
+"""
+import os
+import sys
+
+if sys.version_info < (3, 9):
+    sys.stderr.write(
+        "roundup needs Python 3.9 or newer (found %d.%d)\n" % sys.version_info[:2]
+    )
+    sys.exit(2)
+
+_PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(_PLUGIN_ROOT, "lib"))
+
+from roundup.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(main())

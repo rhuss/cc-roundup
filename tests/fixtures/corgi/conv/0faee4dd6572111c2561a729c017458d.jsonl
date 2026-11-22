@@ -1,0 +1,2 @@
+{"role": "user", "timestamp": 1795327200000, "ref": "10", "text": "please look at the build"}
+{"role": "assistant", "timestamp": 1795338000000, "ref": "20", "text": "The build is green."}
