@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from typing import Any, Dict, List, Optional
 
 from . import InputError
@@ -209,3 +210,46 @@ def find_answer(provider: str, records: List[Dict[str, Any]], text: str) -> Dict
     if provider == "codex":
         return _codex_answer(records, needle)
     return _result("unknown", [], 0, cause="answers not supported for %s" % provider)
+
+
+# ---------------------------------------------------------------------------
+# Collect
+
+POLL_SECONDS = 3
+MAX_WAIT = 540  # stays under the 10 minute shell limit of the harnesses
+_OPEN = ("working", "pending")
+_ENTRY_FIELDS = ("key", "name", "workspace", "pane", "headless_id", "provider", "sent_at")
+
+
+def check(record: Dict[str, Any]) -> Dict[str, Any]:
+    """The answer status of one sent follow-up, read from its transcript."""
+    path = record.get("transcript")
+    if not path:
+        return _result("unknown", [], 0, cause="no transcript path")
+    try:
+        records = read_records(path, int(record.get("offset") or 0))
+    except OSError as exc:
+        return _result("unknown", [], 0,
+                       cause="transcript unreadable: %s" % (exc.strerror or exc))
+    return find_answer(record.get("provider") or "", records, record.get("text") or "")
+
+
+def collect(sent: List[Dict[str, Any]], wait: float, poll: float = POLL_SECONDS,
+            sleep=time.sleep, clock=time.monotonic) -> Dict[str, Any]:
+    """Answers to this run's follow-ups, polling until none is open or `wait` runs out."""
+    deadline = clock() + wait
+    results = [check(rec) for rec in sent]
+    while any(r["status"] in _OPEN for r in results):
+        left = deadline - clock()
+        if left <= 0:
+            break
+        sleep(min(poll, left))
+        results = [check(rec) if r["status"] in _OPEN else r for rec, r in zip(sent, results)]
+    sessions = []
+    for rec, res in zip(sent, results):
+        if res["status"] == "pending":
+            res = dict(res, status="unknown", cause="message not found in transcript")
+        entry = {f: rec.get(f) for f in _ENTRY_FIELDS}
+        entry.update(res)
+        sessions.append(entry)
+    return {"sessions": sessions}

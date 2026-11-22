@@ -152,6 +152,17 @@ def cmd_copyback(args) -> int:
                                                   platform=sys.platform))
 
 
+def cmd_collect(args) -> int:
+    from . import answers
+
+    if not 0 <= args.wait <= answers.MAX_WAIT:
+        raise UsageError("--wait must be between 0 and %d seconds" % answers.MAX_WAIT)
+    run_dir = os.path.dirname(os.path.abspath(args.digest))
+    doc = answers.collect(answers.load_sent(run_dir), args.wait)
+    sys.stdout.write(json.dumps(doc, ensure_ascii=False) + "\n")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = _Parser(prog="roundup", description="Round up open agent sessions (cc-roundup).")
     sub = p.add_subparsers(dest="command", parser_class=_Parser)
@@ -192,6 +203,11 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--key", required=True)
     c.add_argument("--closed", nargs="*", default=[], metavar="KEY")
     c.set_defaults(func=cmd_copyback)
+
+    co = sub.add_parser("collect", help="read the answers to this run's follow-ups (read-only)")
+    co.add_argument("--digest", required=True)
+    co.add_argument("--wait", type=float, default=180, metavar="SECONDS")
+    co.set_defaults(func=cmd_collect)
     return p
 
 

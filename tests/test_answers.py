@@ -152,6 +152,87 @@ class ReadRecordsTest(unittest.TestCase):
         self.assertEqual(answers.read_records(path, 10 ** 9), [{"n": 1}, {"n": 2}])
 
 
+class FakeClock:
+    def __init__(self, on_sleep=None):
+        self.now = 0.0
+        self.sleeps = []
+        self.on_sleep = on_sleep
+
+    def clock(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.sleeps.append(seconds)
+        self.now += seconds
+        if self.on_sleep:
+            self.on_sleep(len(self.sleeps))
+
+
+class CollectTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="roundup-collect-")
+        self.transcript = os.path.join(self.tmp, "t.jsonl")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def write(self, *records, mode="a"):
+        with open(self.transcript, mode, encoding="utf-8") as fh:
+            for rec in records:
+                fh.write(json.dumps(rec) + "\n")
+
+    def sent(self, text="Go.", transcript=True):
+        return {"key": "claude:a", "provider": "claude", "session_id": "a", "name": "app work",
+                "workspace": "app", "pane": 101, "headless_id": None,
+                "transcript": self.transcript if transcript else None, "offset": 0,
+                "text": text, "sent_at": "2026-11-22T11:19:00Z"}
+
+    def test_collect_polls_until_answered(self):
+        self.write(claude_peer("Go."), claude_assistant("thinking about it"), mode="w")
+        fake = FakeClock(on_sleep=lambda n: self.write(claude_assistant("Done."),
+                                                       claude_turn_end()))
+        out = answers.collect([self.sent()], wait=30, poll=3, sleep=fake.sleep, clock=fake.clock)
+        entry = out["sessions"][0]
+        self.assertEqual(entry["status"], "answered")
+        self.assertEqual(entry["answer"], "thinking about it\n\nDone.")
+        self.assertEqual(entry["name"], "app work")
+        self.assertEqual(entry["workspace"], "app")
+        self.assertEqual(entry["pane"], 101)
+        self.assertEqual(entry["sent_at"], "2026-11-22T11:19:00Z")
+        self.assertEqual(fake.sleeps, [3])
+
+    def test_collect_stops_at_deadline(self):
+        self.write(claude_peer("Go."), claude_assistant("busy"), mode="w")
+        fake = FakeClock()
+        out = answers.collect([self.sent()], wait=6, poll=3, sleep=fake.sleep, clock=fake.clock)
+        self.assertEqual(out["sessions"][0]["status"], "working")
+        self.assertEqual(fake.sleeps, [3, 3])
+
+    def test_collect_pending_becomes_unknown(self):
+        self.write(claude_assistant("unrelated"), mode="w")
+        fake = FakeClock()
+        out = answers.collect([self.sent()], wait=0, sleep=fake.sleep, clock=fake.clock)
+        entry = out["sessions"][0]
+        self.assertEqual(entry["status"], "unknown")
+        self.assertEqual(entry["cause"], "message not found in transcript")
+        self.assertEqual(fake.sleeps, [])
+
+    def test_collect_no_transcript_path(self):
+        fake = FakeClock()
+        out = answers.collect([self.sent(transcript=False)], wait=30, sleep=fake.sleep,
+                              clock=fake.clock)
+        entry = out["sessions"][0]
+        self.assertEqual((entry["status"], entry["cause"]), ("unknown", "no transcript path"))
+        self.assertEqual(fake.sleeps, [])
+
+    def test_collect_unreadable_transcript(self):
+        fake = FakeClock()
+        out = answers.collect([self.sent()], wait=0, sleep=fake.sleep, clock=fake.clock)
+        entry = out["sessions"][0]
+        self.assertEqual(entry["status"], "unknown")
+        self.assertTrue(entry["cause"].startswith("transcript unreadable: "), entry["cause"])
+
+
 class LoadSentTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix="roundup-sent-")
