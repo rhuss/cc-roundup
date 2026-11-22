@@ -120,7 +120,7 @@ _NO_FOLLOWUP = {
 
 
 def cmd_act_message(args) -> int:
-    from . import digest
+    from . import answers, digest, timefmt
     from .adapters import corgi
 
     text = sys.stdin.read()
@@ -134,7 +134,14 @@ def cmd_act_message(args) -> int:
     refusal = _NO_FOLLOWUP.get(session.get("agent_state"))
     if refusal:
         return _print_outcome(corgi.outcome(session, "message", "skipped", refusal))
-    return _print_outcome(corgi.message(session, text))
+    sent_at = timefmt.now_iso()
+    result = corgi.message(session, answers.relay_text(text))
+    transcript = result.pop("transcript", None)
+    offset = result.pop("transcript_offset", 0)
+    if result["outcome"] == "done":
+        run_dir = os.path.dirname(os.path.abspath(args.digest))
+        answers.record_sent(run_dir, session, text, transcript, offset, sent_at)
+    return _print_outcome(result)
 
 
 def cmd_copyback(args) -> int:

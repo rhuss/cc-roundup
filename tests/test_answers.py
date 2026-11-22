@@ -152,5 +152,25 @@ class ReadRecordsTest(unittest.TestCase):
         self.assertEqual(answers.read_records(path, 10 ** 9), [{"n": 1}, {"n": 2}])
 
 
+class LoadSentTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="roundup-sent-")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_load_sent_missing_is_empty(self):
+        self.assertEqual(answers.load_sent(self.tmp), [])
+
+    def test_load_sent_malformed_raises_input_error(self):
+        from roundup import InputError
+
+        with open(os.path.join(self.tmp, answers.SENT_FILE), "w", encoding="utf-8") as fh:
+            fh.write('{"key": "claude:a"}\nnot json\n')
+        with self.assertRaises(InputError) as ctx:
+            answers.load_sent(self.tmp)
+        self.assertEqual(str(ctx.exception), "malformed sent.jsonl line 2")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -669,6 +669,8 @@ def message(session: Dict[str, Any], text: str) -> Dict[str, Any]:
         target = "headless:%s" % session.get("headless_id")
     else:
         target = "pane:%s" % session.get("pane")
+    transcript = _live_transcript(check["live"])
+    offset = _file_size(transcript)
     code, out, err = _run(["message", target, "--stdin", "--json"], ACTION_TIMEOUT,
                           input_text=text)
     if code != 0:
@@ -689,4 +691,21 @@ def message(session: Dict[str, Any], text: str) -> Dict[str, Any]:
     if (result or {}).get("queued"):
         reason += " (queued while the agent works)"
     return outcome(session, "message", "done", reason, delivery="message",
-                   queued=bool((result or {}).get("queued")))
+                   queued=bool((result or {}).get("queued")),
+                   transcript=transcript, transcript_offset=offset)
+
+
+def _live_transcript(live: Optional[Dict[str, Any]]) -> Optional[str]:
+    """Transcript path of a live pane or headless entry (both carry it under `agent`)."""
+    path = ((live or {}).get("agent") or {}).get("transcript")
+    return path if isinstance(path, str) and path else None
+
+
+def _file_size(path: Optional[str]) -> int:
+    """Size in bytes before the send: where `collect` starts reading. 0 when unknown."""
+    if not path:
+        return 0
+    try:
+        return os.path.getsize(path)
+    except OSError:
+        return 0

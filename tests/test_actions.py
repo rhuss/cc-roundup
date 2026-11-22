@@ -7,6 +7,7 @@ import os
 import unittest
 
 from tests import helpers
+from roundup import answers
 
 
 def sid(n, provider="claude"):
@@ -227,7 +228,7 @@ class MessageTest(ActionCase):
         calls = self.env.invocations("corgi")
         self.assertEqual([c["argv"] for c in calls],
                          [["list", "--json"], ["message", "pane:101", "--stdin", "--json"]])
-        self.assertEqual(calls[-1]["stdin"], text)
+        self.assertEqual(calls[-1]["stdin"], answers.RELAY_HEADER + "\n\n" + text)
 
     def test_claude_without_channel_is_skipped_without_corgi(self):
         for setup in (lambda: None,
@@ -242,6 +243,50 @@ class MessageTest(ActionCase):
             self.assertEqual(out["outcome"], "skipped")
             self.assertEqual(out["reason"], NO_CHANNEL)
             self.assertEqual(self.corgi_calls(), [])
+
+    def sent_records(self):
+        path = self.env.path(answers.SENT_FILE)
+        if not os.path.exists(path):
+            return None
+        with open(path, encoding="utf-8") as fh:
+            return [json.loads(line) for line in fh if line.strip()]
+
+    def test_done_message_writes_sent_record(self):
+        self.peer_file()
+        transcript = self.env.path("transcript-101.jsonl")
+        with open(transcript, "wb") as fh:
+            fh.write(b"x" * 119 + b"\n")
+        self.edit_list(lambda r: self.pane_of(r, 101)["agent"].__setitem__("transcript",
+                                                                           transcript))
+        text = "Please push the branch.\n"
+        out = self.act("message", key(101), text=text)
+        self.assertEqual(out["outcome"], "done")
+        self.assertNotIn("transcript", out)
+        self.assertNotIn("transcript_offset", out)
+        records = self.sent_records()
+        self.assertEqual(len(records), 1)
+        rec = records[0]
+        self.assertEqual(rec["key"], key(101))
+        self.assertEqual(rec["provider"], "claude")
+        self.assertEqual(rec["pane"], 101)
+        self.assertEqual(rec["text"], text)
+        self.assertEqual(rec["transcript"], transcript)
+        self.assertEqual(rec["offset"], 120)
+        self.assertEqual(rec["sent_at"], helpers.TEST_NOW)
+
+    def test_missing_transcript_still_recorded(self):
+        self.peer_file()
+        self.edit_list(lambda r: self.pane_of(r, 101)["agent"].pop("transcript", None))
+        out = self.act("message", key(101), text="go on")
+        self.assertEqual(out["outcome"], "done")
+        rec = self.sent_records()[0]
+        self.assertIsNone(rec["transcript"])
+        self.assertEqual(rec["offset"], 0)
+
+    def test_skipped_message_writes_no_record(self):
+        out = self.act("message", key(101), text="go on")  # no peer file: no channel
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIsNone(self.sent_records())
 
     @staticmethod
     def dead_pid():

@@ -6,8 +6,12 @@ runs Corgi and never acts on what an answer says.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any, Dict, List, Optional
 
+from . import InputError
+
+SENT_FILE = "sent.jsonl"
 RELAY_HEADER = ("(Relayed from your user by their roundup session. Please answer here in this "
                 "conversation; there is nothing to send back.)")
 ANSWER_LIMIT = 4000
@@ -17,6 +21,46 @@ QUEUED = "queued behind the agent's current turn"
 def relay_text(text: str) -> str:
     """The text `act message` sends: the relay header, a blank line, the confirmed text."""
     return RELAY_HEADER + "\n\n" + text
+
+
+def record_sent(run_dir: str, session: Dict[str, Any], text: str, transcript: Optional[str],
+                offset: int, sent_at: str) -> None:
+    """Append one sent follow-up to RUN/sent.jsonl (`text` is the confirmed text, no header)."""
+    rec = {
+        "key": session["key"],
+        "provider": session.get("provider"),
+        "session_id": session.get("session_id"),
+        "name": session.get("name") or "",
+        "workspace": (session.get("workspace") or {}).get("name") or "",
+        "pane": session.get("pane"),
+        "headless_id": session.get("headless_id"),
+        "transcript": transcript,
+        "offset": offset,
+        "text": text,
+        "sent_at": sent_at,
+    }
+    with open(os.path.join(run_dir, SENT_FILE), "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def load_sent(run_dir: str) -> List[Dict[str, Any]]:
+    """The sent records of this run in send order; [] when nothing was sent."""
+    path = os.path.join(run_dir, SENT_FILE)
+    if not os.path.exists(path):
+        return []
+    records = []
+    with open(path, encoding="utf-8") as fh:
+        for n, line in enumerate(fh, 1):
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                rec = None
+            if not isinstance(rec, dict) or not rec.get("key"):
+                raise InputError("malformed sent.jsonl line %d" % n)
+            records.append(rec)
+    return records
 
 
 def read_records(path: str, offset: int) -> List[Dict[str, Any]]:
