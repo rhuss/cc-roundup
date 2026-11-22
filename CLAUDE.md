@@ -1,4 +1,4 @@
-# cc-roundup Development Guidelines
+# corgi-roundup Development Guidelines
 
 ## Project Structure
 

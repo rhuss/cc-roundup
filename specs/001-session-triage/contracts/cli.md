@@ -31,6 +31,6 @@ Re-checks, pre-checks the agent channel, sends the text through the adapter's `m
 
 Does not re-check the pane (research R9a). Returns `skipped` "session was closed earlier in this run" when KEY is among `--closed`. Otherwise puts the recorded clipboard text back with the same method (`pbcopy`, or `slack-pbcopy` with its recorded arguments). Refuses with `skipped` when the text is truncated, or `failed` when not on macOS or the copy tool is missing.
 
-## Skill arguments (`/cc-roundup:roundup`)
+## Skill arguments (`/roundup:roundup`)
 
 Free-form, parsed by the skill: `archived` maps to `gather --archived`; `stale=<duration>` maps to `overview --stale <duration>` (default `3d`). An invalid duration is reported to the user with the usage hint before gathering starts. Unknown words are reported and ignored.

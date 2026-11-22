@@ -1,6 +1,6 @@
-# cc-roundup
+# corgi-roundup
 
-Round up stray agent sessions. cc-roundup walks through every open top-level agent session across your [Corgi](https://github.com/tals/corgi) workspaces, recaps what each one was about, sorts them into *waiting on you*, *stale, decide*, *waiting on others* and *done, close it*, and proposes the step that closes each thread: close the pane, send the agent a follow-up, or copy a forgotten draft back to the clipboard. Nothing runs until you confirm it.
+Round up stray agent sessions. corgi-roundup walks through every open top-level agent session across your [Corgi](https://github.com/tals/corgi) workspaces, recaps what each one was about, sorts them into *waiting on you*, *stale, decide*, *waiting on others* and *done, close it*, and proposes the step that closes each thread: close the pane, send the agent a follow-up, or copy a forgotten draft back to the clipboard. Nothing runs until you confirm it.
 
 Status: first version. The `roundup` skill works with Corgi as its only backend. The design is in [brainstorm/01-session-triage.md](brainstorm/01-session-triage.md) and [specs/001-session-triage/](specs/001-session-triage/).
 
@@ -9,9 +9,9 @@ Status: first version. The `roundup` skill works with Corgi as its only backend.
 Start the review from an agent that runs in a Corgi pane:
 
 ```text
-/cc-roundup:roundup
-/cc-roundup:roundup stale=7d
-/cc-roundup:roundup archived
+/roundup:roundup
+/roundup:roundup stale=7d
+/roundup:roundup archived
 ```
 
 In Codex, invoke the `roundup` skill the same way, with the same optional words.
@@ -48,13 +48,13 @@ Follow-ups go only through the agent's own message channel. For Claude Code sess
 
 ## Installation
 
-cc-roundup ships as a single plugin directory (`roundup/`) with native manifests for Claude Code and Codex.
+corgi-roundup ships as a single plugin directory (`roundup/`) with native manifests for Claude Code and Codex.
 
 ### Claude Code
 
 ```bash
-claude plugin marketplace add /path/to/cc-roundup
-claude plugin install cc-roundup@cc-roundup-plugin-development
+claude plugin marketplace add /path/to/corgi-roundup
+claude plugin install roundup@corgi-roundup-plugin-development
 ```
 
 Or from a clone: `make install`.
@@ -62,8 +62,8 @@ Or from a clone: `make install`.
 ### Codex
 
 ```bash
-codex plugin marketplace add /path/to/cc-roundup
-codex plugin install cc-roundup@cc-roundup-plugin-development
+codex plugin marketplace add /path/to/corgi-roundup
+codex plugin install roundup@corgi-roundup-plugin-development
 ```
 
 Or from a clone: `make install-codex`.

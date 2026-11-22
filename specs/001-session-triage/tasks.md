@@ -147,7 +147,7 @@ Reference material for the Corgi formats: research.md R3 to R12 and contracts/co
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [X] T047 [P] Update `README.md`: status, usage (`/cc-roundup:roundup [archived] [stale=7d]`), what each category means, confirmation order, the Codex follow-up caveat from research R9, requirements (`python3` 3.9+ added), `make test`
+- [X] T047 [P] Update `README.md`: status, usage (`/roundup:roundup [archived] [stale=7d]`), what each category means, confirmation order, the Codex follow-up caveat from research R9, requirements (`python3` 3.9+ added), `make test`
 - [X] T048 [P] Document the digest for other consumers in `docs/digest.md` (copy of contracts/digest-v1.md adapted for users, plus versioning rules)
 - [X] T049 Run quickstart.md sections 1, 2 and 5 and record results in `specs/001-session-triage/VALIDATION.md`; run section 3 (live, read-only `gather`) when a Corgi runtime is reachable and record session count and gathering time against the 30 s budget (SC-001); judged accuracy (SC-004): have the agent judge the seeded world's `judge-view` without seeing `judgments.json`, compare with `expected.json`, record the percentage (target at least 90%); list quickstart section 4 (harness installs, 2-minute end-to-end overview, resumability after close, overview parity across harnesses) as a manual check for the user, since it changes live panes
 - [X] T050 Update `CLAUDE.md` project structure with `roundup/scripts/`, `roundup/lib/`, `tests/` and the `make test` command

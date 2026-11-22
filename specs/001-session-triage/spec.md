@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: Brainstorm document `brainstorm/01-session-triage.md` (session triage review across Corgi workspaces, packaged as the `roundup` skill of the cc-roundup plugin).
+**Input**: Brainstorm document `brainstorm/01-session-triage.md` (session triage review across Corgi workspaces, packaged as the `roundup` skill of the roundup plugin).
 
 ## Overview
 
@@ -104,7 +104,7 @@ When a session's last tool call copied text to the clipboard and no user message
 
 ### User Story 5 - Install once, run from either harness (Priority: P5)
 
-The user installs cc-roundup from a plugin marketplace into Claude Code or Codex and starts the review with the `roundup` skill. The skill finds its own scripts and category rules relative to the installed plugin, so it behaves the same in both harnesses.
+The user installs corgi-roundup from a plugin marketplace into Claude Code or Codex and starts the review with the `roundup` skill. The skill finds its own scripts and category rules relative to the installed plugin, so it behaves the same in both harnesses.
 
 **Why this priority**: Required for distribution, but a developer can exercise stories 1 to 4 from a clone before packaging is polished.
 
@@ -112,7 +112,7 @@ The user installs cc-roundup from a plugin marketplace into Claude Code or Codex
 
 **Acceptance Scenarios**:
 
-1. **Given** a clone of the repository, **When** the user runs the Claude Code install target, **Then** the `roundup` skill is available as `/cc-roundup:roundup`.
+1. **Given** a clone of the repository, **When** the user runs the Claude Code install target, **Then** the `roundup` skill is available as `/roundup:roundup`.
 2. **Given** a clone of the repository, **When** the user runs the Codex install target, **Then** the `roundup` skill is available in Codex.
 3. **Given** the plugin installed in an arbitrary directory, **When** the skill runs, **Then** it locates its gathering step and category rules without relying on the current working directory.
 

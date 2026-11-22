@@ -166,7 +166,7 @@ CORGI_SOCKET=/nonexistent roundup/scripts/roundup gather > /dev/null; echo "exit
 make validate && make install
 ```
 
-**What you should see:** Both manifests validate, then the install finishes with `cc-roundup@cc-roundup-plugin-development` installed. In a new Claude Code session, `/cc-roundup:roundup` is offered.
+**What you should see:** Both manifests validate, then the install finishes with `roundup@corgi-roundup-plugin-development` installed. In a new Claude Code session, `/roundup:roundup` is offered.
 
 **If you see something else:** A validation error names the manifest field at fault.
 
@@ -182,7 +182,7 @@ make validate && make install
 
 1. Open a new Corgi tab, start Claude Code, and send: `Reply with the single word DONE and nothing else.` Wait for the reply. This is throwaway A (finished).
 2. Open another tab, start Claude Code, and send: `Ask me whether you should create a file named roundup-test.txt, then wait.` Wait for the question. This is throwaway B (waiting on you).
-3. In a third Claude Code session in a Corgi pane, run `/cc-roundup:roundup`.
+3. In a third Claude Code session in a Corgi pane, run `/roundup:roundup`.
 4. Check the overview, then in the close batch remove every entry except throwaway A and confirm.
 5. In the follow-up step, accept or edit the draft for throwaway B (for example `No, do not create it.`) and send it; skip every other follow-up. Skip all copy-backs.
 

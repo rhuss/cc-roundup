@@ -1,24 +1,24 @@
 {
-  "name": "cc-roundup-plugin-development",
+  "name": "corgi-roundup-plugin-development",
   "owner": {
     "name": "Roland Huss",
     "email": "rhuss@redhat.com"
   },
   "metadata": {
-    "description": "Local development marketplace for the cc-roundup plugin."
+    "description": "Local development marketplace for the corgi-roundup plugin."
   },
   "plugins": [
     {
-      "name": "cc-roundup",
-      "version": "0.2.0",
+      "name": "roundup",
+      "version": "0.3.0",
       "description": "Round up stray agent sessions: recap, categorize and close or follow up on open sessions across Corgi workspaces",
       "author": {
         "name": "Roland Huss",
         "email": "rhuss@redhat.com"
       },
       "source": "./roundup",
-      "homepage": "https://github.com/rhuss/cc-roundup",
-      "repository": "https://github.com/rhuss/cc-roundup.git"
+      "homepage": "https://github.com/rhuss/corgi-roundup",
+      "repository": "https://github.com/rhuss/corgi-roundup.git"
     }
   ]
 }

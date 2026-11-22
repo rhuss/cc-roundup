@@ -6,7 +6,7 @@
 
 ## Summary
 
-A `roundup` skill in the cc-roundup plugin walks through every open top-level agent session in Corgi, recaps it, puts it into one of four categories with a visible reason, proposes one closing step, and runs only what the user confirms. A Python command line tool (`roundup/scripts/roundup`, standard library only) does the mechanical work: a Corgi adapter builds a versioned digest in one read-only snapshot, backend-neutral signal modules add git, PR and clipboard findings, and a deterministic category engine turns the digest plus the agent's judgments into the overview. The skill (`roundup/skills/roundup/SKILL.md`) drives the conversation: gather, judge, show, confirm in the fixed order, act, report.
+A `roundup` skill in the roundup plugin walks through every open top-level agent session in Corgi, recaps it, puts it into one of four categories with a visible reason, proposes one closing step, and runs only what the user confirms. A Python command line tool (`roundup/scripts/roundup`, standard library only) does the mechanical work: a Corgi adapter builds a versioned digest in one read-only snapshot, backend-neutral signal modules add git, PR and clipboard findings, and a deterministic category engine turns the digest plus the agent's judgments into the overview. The skill (`roundup/skills/roundup/SKILL.md`) drives the conversation: gather, judge, show, confirm in the fixed order, act, report.
 
 ## Technical Context
 

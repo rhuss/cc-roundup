@@ -65,7 +65,15 @@ class PackagingTest(unittest.TestCase):
     def test_codex_manifest_points_at_skills(self):
         manifest = json.loads(read(PLUGIN, ".codex-plugin", "plugin.json"))
         self.assertEqual(manifest["skills"], "./skills/")
-        self.assertEqual(manifest["name"], "cc-roundup")
+        self.assertEqual(manifest["name"], "roundup")
+
+    def test_plugin_names(self):
+        claude = json.loads(read(PLUGIN, ".claude-plugin", "plugin.json"))
+        market = json.loads(read(ROOT, ".claude-plugin", "marketplace.json"))
+        self.assertEqual(claude["name"], "roundup")
+        self.assertEqual(market["name"], "corgi-roundup-plugin-development")
+        self.assertEqual(market["plugins"][0]["name"], "roundup")
+        self.assertEqual(claude["repository"], "https://github.com/rhuss/corgi-roundup")
 
     def test_versions_in_sync(self):
         versions = {

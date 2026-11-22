@@ -1,4 +1,4 @@
-"""roundup: session triage for agent sessions (cc-roundup plugin)."""
+"""roundup: session triage for agent sessions (corgi-roundup plugin)."""
 
 
 class BackendError(Exception):

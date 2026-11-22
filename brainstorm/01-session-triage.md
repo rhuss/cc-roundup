@@ -19,7 +19,7 @@ Anti-goals:
 
 ## Decision
 
-A standalone repository, `cc-roundup`, packaged like the other `cc-*` plugins (layout as in `cc-review`): one plugin directory `roundup/` with native manifests for Claude Code (`.claude-plugin/plugin.json`) and Codex (`.codex-plugin/plugin.json`), skills under `roundup/skills/`, and a local development marketplace at the repo root. The plugin holds the skill, its category rules and a gathering script. Corgi is the first and only backend.
+A standalone repository, `corgi-roundup`, packaged like the other `cc-*` plugins (layout as in `cc-review`): one plugin directory `roundup/` with native manifests for Claude Code (`.claude-plugin/plugin.json`) and Codex (`.codex-plugin/plugin.json`), skills under `roundup/skills/`, and a local development marketplace at the repo root. The plugin holds the skill, its category rules and a gathering script. Corgi is the first and only backend.
 
 **Architecture: the digest is the seam.**
 - **Corgi adapter**: the only code that calls Corgi (`corgi list --json`, `corgi grep --session`, `corgi pane close`, `corgi message`, `corgi headless stop`). It reads sessions and turns them into the digest, and it executes the action verbs.
@@ -27,7 +27,7 @@ A standalone repository, `cc-roundup`, packaged like the other `cc-*` plugins (l
 - **Action verbs**: the skill asks the adapter to `close` or `message` a session; it does not spell out Corgi commands itself.
 - No plugin framework. A second backend (plain Claude Code sessions, tmux) later gets a second adapter, and the interface is extracted from what both need.
 
-**Installation**: as a plugin, through the Claude Code or Codex plugin marketplace (`make install` / `make install-codex` from a clone, later via `cc-rhuss-marketplace`). The skill is `roundup` (`/cc-roundup:roundup` in Claude Code). It resolves its scripts and rules relative to the installed plugin directory, so it behaves the same in both harnesses. Nothing is built into Corgi.
+**Installation**: as a plugin, through the Claude Code or Codex plugin marketplace (`make install` / `make install-codex` from a clone, later via `cc-rhuss-marketplace`). The skill is `roundup` (`/roundup:roundup` in Claude Code). It resolves its scripts and rules relative to the installed plugin directory, so it behaves the same in both harnesses. Nothing is built into Corgi.
 
 **Later**: an Ask Corgi `/triage` built into Corgi could consume the same digest. Out of scope here.
 

@@ -1,7 +1,7 @@
 .PHONY: validate test install uninstall reinstall install-codex help
 
-MARKETPLACE := cc-roundup-plugin-development
-PLUGIN := cc-roundup@$(MARKETPLACE)
+MARKETPLACE := corgi-roundup-plugin-development
+PLUGIN := roundup@$(MARKETPLACE)
 
 validate:
 	claude plugin validate ./

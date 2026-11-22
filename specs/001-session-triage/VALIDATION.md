@@ -34,7 +34,7 @@ Only read-only Corgi commands ran (`list --json`, `grep`, `history --json`). The
 
 Not run here, because they close panes or send messages:
 
-- `make install` and `make install-codex`. Then start `/cc-roundup:roundup` in Claude Code and the `roundup` skill in Codex.
+- `make install` and `make install-codex`. Then start `/roundup:roundup` in Claude Code and the `roundup` skill in Codex.
 - A categorized overview in under 2 minutes for about 70 sessions, from start to overview (SC-001).
 - Declining every step leaves all panes untouched.
 - A closed session shows up in `corgi history` and resumes with `corgi resume PROVIDER SESSION` (SC-005, FR-027).

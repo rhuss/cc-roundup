@@ -36,7 +36,7 @@ make install          # Claude Code
 make install-codex    # Codex
 ```
 
-Start `/cc-roundup:roundup` (Codex: the `roundup` skill). Expected: categorized overview in under 2 minutes for about 70 sessions; nothing changes before you confirm; declining every step leaves all panes untouched; closed sessions show up in `corgi history` and resume with `corgi resume PROVIDER SESSION`.
+Start `/roundup:roundup` (Codex: the `roundup` skill). Expected: categorized overview in under 2 minutes for about 70 sessions; nothing changes before you confirm; declining every step leaves all panes untouched; closed sessions show up in `corgi history` and resume with `corgi resume PROVIDER SESSION`.
 
 ## 5. Unreachable runtime
 

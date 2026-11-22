@@ -164,7 +164,7 @@ def cmd_collect(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = _Parser(prog="roundup", description="Round up open agent sessions (cc-roundup).")
+    p = _Parser(prog="roundup", description="Round up open agent sessions (corgi-roundup).")
     sub = p.add_subparsers(dest="command", parser_class=_Parser)
     sub.required = True
 

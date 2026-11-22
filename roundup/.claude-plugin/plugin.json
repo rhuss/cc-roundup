@@ -1,14 +1,14 @@
 {
-  "name": "cc-roundup",
-  "version": "0.2.0",
+  "name": "roundup",
+  "version": "0.3.0",
   "description": "Round up stray agent sessions: recap, categorize and close or follow up on open sessions across Corgi workspaces",
   "author": {
     "name": "Roland Huss",
     "email": "rhuss@redhat.com"
   },
   "license": "MIT",
-  "repository": "https://github.com/rhuss/cc-roundup",
-  "homepage": "https://github.com/rhuss/cc-roundup",
+  "repository": "https://github.com/rhuss/corgi-roundup",
+  "homepage": "https://github.com/rhuss/corgi-roundup",
   "keywords": [
     "claude-code",
     "codex",
