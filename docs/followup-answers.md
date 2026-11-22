@@ -57,7 +57,7 @@ Output, one JSON document in send order:
 | `no_reply` | The turn ended without text; for Codex an interrupted turn has cause `turn interrupted` |
 | `unknown` | Cause `no transcript path`, `transcript unreadable: …`, `message not found in transcript` or `answers not supported for <provider>` |
 
-Turn ends: Claude `system` records with subtype `turn_duration`; Codex events `task_complete` and `turn_aborted`.
+The message is the first matching user record after `offset`. The answer ends at the turn end (Claude `system` records with subtype `turn_duration`; Codex events `task_complete` and `turn_aborted`) or at the next user prompt, whichever comes first. A Claude `[Request interrupted` prompt or a Codex `turn_aborted` gives `no_reply` with cause `turn interrupted`. Codex messages are read from `item_completed` events (`UserMessage`, `AgentMessage` items, Codex 0.167) and from the older `user_message` and `agent_message` events.
 
 Exit codes: 0 success, 2 usage error (bad `--wait`), 4 malformed `sent.jsonl`.
 

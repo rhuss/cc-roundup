@@ -115,6 +115,77 @@ class FindAnswerClaudeTest(unittest.TestCase):
         self.assertEqual(got["cause"], "answers not supported for gemini")
 
 
+class FindAnswerBoundaryTest(unittest.TestCase):
+    """Final review fixes: the answer ends at the next prompt, first match wins."""
+
+    def test_claude_stops_at_next_user_prompt(self):
+        records = [claude_peer("Go."), claude_assistant("first reply"),
+                   claude_user("something unrelated"), claude_assistant("other reply"),
+                   claude_turn_end()]
+        got = answers.find_answer("claude", records, "Go.")
+        self.assertEqual(got["status"], "answered")
+        self.assertEqual(got["answer"], "first reply")
+
+    def test_claude_interrupt_is_no_reply(self):
+        records = [claude_peer("Go."), claude_assistant("partial"),
+                   claude_user("[Request interrupted by user]"), claude_user("new prompt"),
+                   claude_assistant("other"), claude_turn_end()]
+        got = answers.find_answer("claude", records, "Go.")
+        self.assertEqual(got["status"], "no_reply")
+        self.assertEqual(got["cause"], "turn interrupted")
+
+    def test_claude_meta_and_compact_records_do_not_end_answer(self):
+        skill = claude_user("Base directory for this skill: /Users/me/skills/x", meta=False)
+        skill["isMeta"] = True
+        compact = claude_user("Summary of earlier conversation")
+        compact["isCompactSummary"] = True
+        records = [claude_peer("Go."), claude_assistant("one"), skill, compact,
+                   claude_assistant("two"), claude_turn_end()]
+        got = answers.find_answer("claude", records, "Go.")
+        self.assertEqual(got["answer"], "one\n\ntwo")
+
+    def test_first_match_after_offset_wins(self):
+        records = [claude_peer("Yes."), claude_assistant("Added the link."), claude_turn_end(),
+                   claude_user("Yes. Now also the footer."), claude_assistant("Footer done."),
+                   claude_turn_end()]
+        got = answers.find_answer("claude", records, "Yes.")
+        self.assertEqual(got["answer"], "Added the link.")
+
+
+def codex_item(kind, text, ts="2026-11-22T11:20:00Z"):
+    block = "text" if kind == "UserMessage" else "Text"
+    return {"timestamp": ts, "type": "event_msg",
+            "payload": {"type": "item_completed",
+                        "item": {"type": kind, "content": [{"type": block, "text": text}]}}}
+
+
+class FindAnswerCodexItemsTest(unittest.TestCase):
+    """Codex 0.167 rollouts: item_completed UserMessage / AgentMessage items."""
+
+    def test_codex_item_completed_answered(self):
+        text = "Open the PR."
+        records = [codex_item("UserMessage", answers.relay_text(text)),
+                   {"type": "response_item",
+                    "payload": {"type": "message", "role": "assistant",
+                                "content": [{"type": "output_text", "text": "PR opened."}]}},
+                   codex_item("AgentMessage", "PR opened."),
+                   codex_event("task_complete", ts="2026-11-22T11:21:00Z")]
+        got = answers.find_answer("codex", records, text)
+        self.assertEqual(got["status"], "answered")
+        self.assertEqual(got["answer"], "PR opened.")
+        self.assertEqual(got["answered_at"], "2026-11-22T11:21:00Z")
+
+    def test_codex_stops_at_next_user_message(self):
+        text = "Open the PR."
+        records = [codex_item("UserMessage", answers.relay_text(text)),
+                   codex_item("AgentMessage", "Opening it."),
+                   codex_item("UserMessage", "unrelated"),
+                   codex_item("AgentMessage", "other"),
+                   codex_event("task_complete")]
+        got = answers.find_answer("codex", records, text)
+        self.assertEqual(got["answer"], "Opening it.")
+
+
 class FindAnswerCodexTest(unittest.TestCase):
     def test_codex_answered(self):
         text = "Open the PR."

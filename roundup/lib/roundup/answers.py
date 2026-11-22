@@ -152,12 +152,26 @@ def _result(status: str, parts: List[str], tools: int, cause: Optional[str] = No
     return out
 
 
+INTERRUPTED = "turn interrupted"
+
+
+def _claude_prompt(rec: Dict[str, Any]) -> Optional[str]:
+    """Text of a user prompt that starts a new turn: typed, or a peer message.
+
+    Other meta records (skill content, command caveats) and compaction summaries run inside
+    a turn and do not end the answer.
+    """
+    if rec.get("isCompactSummary"):
+        return None
+    if rec.get("isMeta") and (rec.get("origin") or {}).get("kind") != "peer":
+        return None
+    return _claude_user_text(rec)
+
+
 def _claude_answer(records: List[Dict[str, Any]], needle: str) -> Dict[str, Any]:
-    start = -1
-    for i, rec in enumerate(records):
-        text = _claude_user_text(rec)
-        if text is not None and needle in text:
-            start = i
+    # The first match after the send offset is our message; a later prompt may quote it.
+    start = next((i for i, rec in enumerate(records)
+                  if needle in (_claude_user_text(rec) or "")), -1)
     if start < 0:
         queued = any(rec.get("type") == "queue-operation" and rec.get("operation") == "enqueue"
                      and needle in str(rec.get("content") or "") for rec in records)
@@ -170,6 +184,13 @@ def _claude_answer(records: List[Dict[str, Any]], needle: str) -> Dict[str, Any]
         if rec.get("type") == "system" and rec.get("subtype") == "turn_duration":
             return _result("answered" if parts else "no_reply", parts, tools,
                            answered_at=rec.get("timestamp") if parts else None)
+        prompt = _claude_prompt(rec)
+        if prompt is not None:
+            if prompt.startswith("[Request interrupted"):
+                return _result("no_reply", parts, tools, cause=INTERRUPTED)
+            # A new prompt started without a turn end record: the answer is complete.
+            return _result("answered" if parts else "no_reply", parts, tools,
+                           answered_at=rec.get("timestamp") if parts else None)
         got = _claude_assistant(rec)
         if got:
             parts.extend(got[0])
@@ -177,25 +198,55 @@ def _claude_answer(records: List[Dict[str, Any]], needle: str) -> Dict[str, Any]
     return _result("working", parts, tools)
 
 
+def _item_text(item: Dict[str, Any]) -> str:
+    content = item.get("content")
+    if isinstance(content, str):
+        return content
+    return "\n".join(str(c.get("text") or "") for c in content or []
+                     if isinstance(c, dict) and str(c.get("type", "")).lower() == "text")
+
+
+def _codex_kind(rec: Dict[str, Any]):
+    """(kind, text) of a Codex rollout record: user, agent, done, aborted or None.
+
+    Codex 0.167 writes item_completed events with UserMessage and AgentMessage items;
+    older rollouts write user_message and agent_message events. response_item copies
+    are ignored so the answer is not counted twice.
+    """
+    payload = _payload(rec)
+    kind = payload.get("type")
+    if kind == "item_completed":
+        item = payload.get("item") if isinstance(payload.get("item"), dict) else {}
+        if item.get("type") == "UserMessage":
+            return "user", _item_text(item)
+        if item.get("type") == "AgentMessage":
+            return "agent", _item_text(item)
+    elif kind == "user_message":
+        return "user", str(payload.get("message") or "")
+    elif kind == "agent_message":
+        return "agent", str(payload.get("message") or "")
+    elif kind == "task_complete":
+        return "done", ""
+    elif kind == "turn_aborted":
+        return "aborted", ""
+    return None, ""
+
+
 def _codex_answer(records: List[Dict[str, Any]], needle: str) -> Dict[str, Any]:
-    start = -1
-    for i, rec in enumerate(records):
-        payload = _payload(rec)
-        if payload.get("type") == "user_message" and needle in str(payload.get("message") or ""):
-            start = i
+    kinds = [_codex_kind(rec) for rec in records]
+    start = next((i for i, (kind, text) in enumerate(kinds)
+                  if kind == "user" and needle in text), -1)
     if start < 0:
         return _result("pending", [], 0)
     parts: List[str] = []
-    for rec in records[start + 1:]:
-        payload = _payload(rec)
-        kind = payload.get("type")
-        if kind == "agent_message" and payload.get("message"):
-            parts.append(str(payload["message"]))
-        elif kind == "task_complete":
+    for rec, (kind, text) in zip(records[start + 1:], kinds[start + 1:]):
+        if kind == "agent" and text:
+            parts.append(text)
+        elif kind in ("done", "user"):
             return _result("answered" if parts else "no_reply", parts, 0,
                            answered_at=rec.get("timestamp") if parts else None)
-        elif kind == "turn_aborted":
-            return _result("no_reply", parts, 0, cause="turn interrupted")
+        elif kind == "aborted":
+            return _result("no_reply", parts, 0, cause=INTERRUPTED)
     return _result("working", parts, 0)
 
 
