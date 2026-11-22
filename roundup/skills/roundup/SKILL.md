@@ -98,7 +98,7 @@ The steps always run in this order. Each one is optional, and the user can stop 
    - **Adjust batch**: the user then says which numbers to remove and which addable sessions to add (also accepted directly through the free-text "Other" answer).
    - **Skip closing**: close nothing.
 
-   Apply the user's edits and show the final batch again only if it changed, then ask once more with **Close all** and **Skip closing**. The user confirms the final batch once; do not ask per session. When the user adds a session that also has a pending copy-back (`action.verb == "copyback"`), warn that closing it does not lose the draft, but its copy-back will then be skipped because the session was closed earlier in this run; suggest leaving it out of the batch until the copy-back step is done.
+   Apply the user's edits and show the final batch again only if it changed, then ask once more with **Close all** and **Skip closing**. The user confirms the final batch once; do not ask per session. When the user adds a session that also has a pending copy-back (`action.verb == "copyback"`), warn that closing it does not lose the draft, but its copy-back will then be skipped because the session was closed earlier in this run; suggest leaving it out of the batch until the copy-back step is done. Put this warning into the text of that second question, so the dialog cannot hide it.
 4. Declining or skipping closes nothing. Record every batch entry as "not reached".
 5. For each entry of the confirmed batch, in order:
 
@@ -120,7 +120,7 @@ If the user asks for a follow-up for a *stale, decide* session (or any other ses
 For each candidate, one at a time:
 
 1. Show the session name, its reason and the drafted text (`action.text`).
-2. Ask as a single-choice question with your harness's question tool (Claude Code: `AskUserQuestion`; a harness without one gets the same options as a numbered list to answer with a number). The question dialog can hide the text above it, so the question itself must carry the session name and the full draft, quoted. Options, in this order:
+2. Ask as a single-choice question with your harness's question tool (Claude Code: `AskUserQuestion`; a harness without one gets the same options as a numbered list to answer with a number). The question dialog can hide the text above it, so the question itself must carry the session name and the full draft, quoted, and for a Codex session the one-line Codex risk from the caveat below. Options, in this order:
    - **Send as is**: send the draft unchanged.
    - **Send alternative** (only when you wrote one, for example a cautious version for a draft flagged under the hard rules): put the full alternative text into the option description.
    - **Skip**: send nothing for this session.
