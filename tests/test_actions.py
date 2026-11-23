@@ -146,6 +146,88 @@ class CloseTest(ActionCase):
         self.assertEqual(self.corgi_calls(), [])
 
 
+class FocusTest(ActionCase):
+    """Jump to a session's pane: `corgi focus PANE --viewer ID`, live panes only."""
+
+    def setUp(self):
+        super().setUp()
+        self.env.write_fixture("focus-reply.json", '{"ok":true}\n')
+
+    def viewers(self, *viewers):
+        doc = self.env.load_fixture_json("list.json")
+        doc["viewers"] = [dict({"pid": 0, "active": 1, "watched": True}, **v) for v in viewers]
+        self.env.write_fixture("list.json", doc)
+
+    def test_single_viewer_focuses_pane(self):
+        self.viewers({"id": 7, "workspace": 2, "pane": 104})
+        out = self.act("focus", key(101))
+        self.assertEqual(out, {"key": key(101), "verb": "focus", "outcome": "done",
+                               "reason": "pane 101 focused"})
+        self.assertEqual(self.corgi_calls(),
+                         [["list", "--json"], ["focus", "101", "--viewer", "7"]])
+
+    def test_viewer_showing_caller_pane_wins(self):
+        self.viewers({"id": 3, "workspace": 1, "pane": 102}, {"id": 4, "workspace": 1, "pane": 108})
+        self.act("focus", key(101))
+        self.assertEqual(self.corgi_calls()[-1], ["focus", "101", "--viewer", "4"])
+
+    def test_viewer_on_caller_workspace_wins(self):
+        self.viewers({"id": 3, "workspace": 2, "pane": 104}, {"id": 4, "workspace": 1, "pane": 102})
+        self.act("focus", key(107))
+        self.assertEqual(self.corgi_calls()[-1], ["focus", "107", "--viewer", "4"])
+
+    def test_ambiguous_viewers_skipped(self):
+        self.viewers({"id": 3, "workspace": 2, "pane": 104}, {"id": 4, "workspace": 2, "pane": 107})
+        out = self.act("focus", key(101))
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIn("several Corgi viewers", out["reason"])
+        self.assertEqual(self.corgi_calls(), [["list", "--json"]])
+
+    def test_no_viewer_skipped(self):
+        out = self.act("focus", key(101))
+        self.assertEqual((out["outcome"], out["reason"]), ("skipped", "no Corgi viewer is open"))
+        self.assertEqual(self.corgi_calls(), [["list", "--json"]])
+
+    def test_hibernated_pane_skipped(self):
+        self.viewers({"id": 7, "workspace": 1, "pane": 108})
+        out = self.act("focus", key(106))
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIn("hibernated", out["reason"])
+        self.assertEqual(self.corgi_calls(), [])  # hibernated in the digest: no Corgi call
+        # Hibernated since the snapshot: the live list decides, still no focus.
+        self.edit_list(lambda r: self.pane_of(r, 101).__setitem__("dormant", True))
+        out = self.act("focus", key(101))
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIn("hibernated", out["reason"])
+        self.assertEqual(self.corgi_calls(), [["list", "--json"]])
+
+    def test_headless_skipped_without_corgi(self):
+        out = self.act("focus", key(201))
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIn("headless", out["reason"])
+        self.assertEqual(self.corgi_calls(), [])
+
+    def test_pane_gone_skipped(self):
+        self.viewers({"id": 7, "workspace": 1, "pane": 108})
+        self.edit_list(lambda r: r.__setitem__("panes", [p for p in r["panes"] if p["id"] != 101]))
+        out = self.act("focus", key(101))
+        self.assertEqual(out["outcome"], "skipped")
+        self.assertIn("no longer", out["reason"])
+
+    def test_state_change_does_not_block_jump(self):
+        # Unlike close and message, a jump is harmless when the agent moved on.
+        self.viewers({"id": 7, "workspace": 1, "pane": 108})
+        self.edit_list(lambda r: self.pane_of(r, 101)["agent"].__setitem__("state", "working"))
+        self.assertEqual(self.act("focus", key(101))["outcome"], "done")
+
+    def test_corgi_error_fails(self):
+        self.viewers({"id": 7, "workspace": 1, "pane": 108})
+        self.env.write_fixture("focus-reply.json.exit", "2")
+        self.env.write_fixture("focus-reply.json.stderr", '{"ok":false,"err":"viewer 7 is gone"}\n')
+        out = self.act("focus", key(101))
+        self.assertEqual((out["outcome"], out["reason"]), ("failed", "viewer 7 is gone"))
+
+
 class EditedBatchTest(ActionCase):
     """US2 independent test: drop one done session, add one stale session, close the batch."""
 

@@ -296,5 +296,7 @@ def _evaluate_one(s, j, generated_at, stale_seconds, platform) -> Dict[str, Any]
                         if platform != "darwin" else None),
         "action": action,
         "addable_to_close": addable,
+        # A jump (`act focus`) needs a live pane: never a headless agent, never a hibernated pane.
+        "jumpable": s.get("kind") == "pane" and s.get("pane") is not None and not hibernated,
         "notes": notes,
     }

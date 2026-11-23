@@ -72,6 +72,11 @@ def _error_text(code: int, stderr: str) -> str:
 
 
 def _list() -> Dict[str, Any]:
+    return _list_reply()["result"]
+
+
+def _list_reply() -> Dict[str, Any]:
+    """The whole `corgi list --json` reply: `result` plus top-level `viewers`."""
     code, out, err = _run(["list", "--json"], READ_TIMEOUT)
     if code != 0 or not out.strip():
         raise BackendError(_error_text(code, err))
@@ -83,7 +88,7 @@ def _list() -> Dict[str, Any]:
         raise BackendError("unreadable reply from corgi list: not a JSON object")
     if not doc.get("ok", True) or not isinstance(doc.get("result"), dict):
         raise BackendError(str(doc.get("err") or "corgi list failed"))
-    return doc["result"]
+    return doc
 
 
 # ---------------------------------------------------------------------------
@@ -579,6 +584,51 @@ def close(session: Dict[str, Any]) -> Dict[str, Any]:
     if code == 0:
         return outcome(session, "close", "done", done)
     return outcome(session, "close", "failed", _error_text(code, err))
+
+
+def _pick_viewer(viewers: Any, result: Dict[str, Any]) -> Tuple[Optional[Any], str]:
+    """The viewer to jump in: the only one, else the one showing this review's pane or workspace."""
+    viewers = [v for v in viewers or [] if isinstance(v, dict) and v.get("id") is not None]
+    if not viewers:
+        return None, "no Corgi viewer is open"
+    if len(viewers) == 1:
+        return viewers[0]["id"], ""
+    caller, _cause = _caller()
+    matches = [v for v in viewers if caller is not None and v.get("pane") == caller]
+    if not matches and caller is not None:
+        ws = next((p.get("workspace") for p in result.get("panes") or []
+                   if p.get("id") == caller), None)
+        matches = [v for v in viewers if ws is not None and v.get("workspace") == ws]
+    if len(matches) == 1:
+        return matches[0]["id"], ""
+    return None, "several Corgi viewers are open; cannot tell which one is yours"
+
+
+def focus(session: Dict[str, Any]) -> Dict[str, Any]:
+    """Jump to the session's pane in the user's viewer (`corgi focus PANE --viewer ID`).
+
+    Live panes only: never wakes a hibernated pane and never opens a headless session.
+    The agent's state may have moved on since the snapshot; selecting a pane is harmless.
+    Raises BackendError when the runtime is unreachable.
+    """
+    if session.get("kind") != "pane" or session.get("pane") is None:
+        return outcome(session, "focus", "skipped", "headless agent has no pane to jump to")
+    reply = _list_reply()
+    result = reply["result"]
+    live, reason = _find_live(result, session)
+    if live is None:
+        return outcome(session, "focus", "skipped", reason)
+    if live.get("dormant"):
+        return outcome(session, "focus", "skipped",
+                       "pane %s is hibernated; not waking it" % session["pane"])
+    viewer, reason = _pick_viewer(reply.get("viewers"), result)
+    if viewer is None:
+        return outcome(session, "focus", "skipped", reason)
+    code, _out, err = _run(["focus", str(session["pane"]), "--viewer", str(viewer)],
+                           ACTION_TIMEOUT)
+    if code == 0:
+        return outcome(session, "focus", "done", "pane %s focused" % session["pane"])
+    return outcome(session, "focus", "failed", _error_text(code, err))
 
 
 NO_CHANNEL = "agent channel not available; not typing into the pane"

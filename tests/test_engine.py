@@ -256,6 +256,13 @@ class ActionTest(unittest.TestCase):
         self.assertEqual(e["action"], {"verb": "close", "preselected": True})
         self.assertFalse(e["addable_to_close"])
 
+    def test_jumpable_only_for_live_panes(self):
+        self.assertTrue(one(helpers.make_session(1))["jumpable"])
+        self.assertTrue(one(helpers.make_session(1, agent_state="blocked"))["jumpable"])
+        self.assertFalse(one(helpers.make_session(1, hibernated=True))["jumpable"])
+        s = helpers.make_session(1, kind="headless", pane=None, headless_id="3")
+        self.assertFalse(one(s)["jumpable"])
+
     def test_headless_done_close(self):
         s = helpers.make_session(1, kind="headless", pane=None, headless_id="3", pr=pr_sig("merged"))
         self.assertEqual(one(s)["action"]["verb"], "close")

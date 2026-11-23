@@ -112,6 +112,17 @@ def cmd_act_close(args) -> int:
     return _print_outcome(corgi.close(session))
 
 
+def cmd_act_focus(args) -> int:
+    from . import digest
+    from .adapters import corgi
+
+    session = digest.find_session(digest.load(args.digest), args.key)
+    if session.get("hibernated"):
+        return _print_outcome(corgi.outcome(
+            session, "focus", "skipped", "pane %s is hibernated; not waking it" % session.get("pane")))
+    return _print_outcome(corgi.focus(session))
+
+
 _NO_FOLLOWUP = {
     "exited": "agent exited; no follow-up (add it to the close batch instead)",
     "blocked": "approval pending; no follow-up",
@@ -197,6 +208,10 @@ def build_parser() -> argparse.ArgumentParser:
     am.add_argument("--digest", required=True)
     am.add_argument("--key", required=True)
     am.set_defaults(func=cmd_act_message)
+    af = asub.add_parser("focus", help="jump to the session's live pane in your Corgi viewer")
+    af.add_argument("--digest", required=True)
+    af.add_argument("--key", required=True)
+    af.set_defaults(func=cmd_act_focus)
 
     c = sub.add_parser("copyback", help="put a forgotten clipboard text back (macOS)")
     c.add_argument("--digest", required=True)

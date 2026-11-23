@@ -13,6 +13,7 @@ from argv:
   message ...                   -> message-reply.json
   pane close ID                 -> close-reply.json
   headless stop P S             -> headless-stop-reply.json
+  focus ID --viewer V           -> focus-reply.json
 
 For a reply file F, optional F.exit holds the exit code and F.stderr the
 stderr text. A missing reply file exits 1 (grep prints Corgi's "0 sessions"
@@ -52,6 +53,8 @@ def key_for(argv):
         return "close-reply.json"
     if cmd == "headless" and len(argv) > 1 and argv[1] == "stop":
         return "headless-stop-reply.json"
+    if cmd == "focus":
+        return "focus-reply.json"
     return None
 
 

@@ -27,6 +27,10 @@ Re-checks the session through the adapter (FR-025), then closes it (pane close, 
 
 Re-checks, pre-checks the agent channel, sends the text through the adapter's `message` verb, and reports `delivery`. Typed delivery is reported as `failed` (research R9). Never retries.
 
+## `roundup act focus --digest FILE --key KEY`
+
+Jumps to the session's pane in the user's Corgi viewer with `corgi focus PANE --viewer ID`. Live panes only: a headless session or a hibernated pane (in the digest or in the fresh `corgi list`) is `skipped` and nothing is woken or opened. The pane must still show the same conversation; unlike close and message, a changed agent state does not block the jump, since selecting a pane changes nothing in the session. The viewer is the only one open, else the one showing this review's own pane (`CORGI_PANE`), else the one on that pane's workspace; with no viewer or no unique match the outcome is `skipped`. Prints one outcome line with `"verb":"focus"`. Overview entries carry `jumpable: true` for sessions this verb can reach. Never retries.
+
 ## `roundup copyback --digest FILE --key KEY [--closed KEY ...]`
 
 Does not re-check the pane (research R9a). Returns `skipped` "session was closed earlier in this run" when KEY is among `--closed`. Otherwise puts the recorded clipboard text back with the same method (`pbcopy`, or `slack-pbcopy` with its recorded arguments). Refuses with `skipped` when the text is truncated, or `failed` when not on macOS or the copy tool is missing.
