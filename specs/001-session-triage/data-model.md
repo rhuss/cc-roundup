@@ -62,7 +62,7 @@ The wire formats are fixed in [contracts/digest-v1.md](contracts/digest-v1.md) a
 
 ### Judgments (agent-produced, never in the digest, FR-013)
 
-Per session key: `unanswered_agent` (bool), `task_finished` (bool), `about` (≤ 100 chars), `stopped` (≤ 100 chars), `followup` (draft text or null), `judgment_note` (optional, ≤ 80 chars, quoted in the reason when a judged signal decides).
+Per session key: `unanswered_agent` (bool), `task_finished` (bool), `pr_round_only` (bool, default false: the session did one bounded round on an existing PR, such as triage or review replies, and does not own its lifecycle), `about` (≤ 100 chars), `stopped` (≤ 100 chars), `followup` (draft text or null), `judgment_note` (optional, ≤ 80 chars, quoted in the reason when a judged signal decides).
 
 ### Overview entry (computed, not persisted)
 
@@ -81,8 +81,8 @@ Per session key: `unanswered_agent` (bool), `task_finished` (bool), `about` (≤
 | 0 | `agent_state == blocked` | waiting on you | `approval pending` |
 | 1 | `agent_state in {working, starting}` | waiting on others | `agent working` / `agent starting up` |
 | 2 | `unanswered_agent` or `clipboard.found` or `unfinished.found` (non-shared items) | waiting on you | first applicable: `agent asked: <note>`, `clipboard copy never pasted`, `<item detail>` |
-| 3 | `pr.current.state == open` | waiting on others | `PR open: <url>` |
-| 4 | `pr.current.state in {merged, closed}` or `task_finished` | done, close it | `PR merged: <url>` / `PR closed: <url>` / `task finished: <note>` |
+| 3 | `pr.current.state == open`, unless `task_finished` and `pr_round_only` | waiting on others | `PR open: <url>` |
+| 4 | `pr.current.state in {merged, closed}` or `task_finished` | done, close it | `PR merged: <url>` / `PR closed: <url>` / `task finished: <note>` (plus `; PR still open: <url>` for a finished PR round) |
 | 5 | otherwise | stale, decide | `quiet <duration>` plus `, stale` when quiet ≥ threshold |
 
 Invariants:
@@ -90,7 +90,7 @@ Invariants:
 - An `unknown` push state never blocks rule 4 (spec clarification of finding 2).
 - Shared-folder git items append `; shared folder: <detail>` to the reason.
 - Agent state `unknown` (raw state outside the mapping) never matches rules 0 or 1, never gets close preselected and never gets a follow-up; it stays `addable_to_close`, and its reason ends with `; agent state unknown`.
-- A conversation that could not be read contributes no judged signals (`unanswered_agent = task_finished = false`), so it lands in stale unless a mechanical signal decides.
+- A conversation that could not be read contributes no judged signals (`unanswered_agent = task_finished = pr_round_only = false`), so it lands in stale unless a mechanical signal decides.
 - Quiet time: `generated_at − changed_at`; if `changed_at` is null, `generated_at − last_message_at` and the reason adds `(from last message)`; if both are null, `quiet unknown`.
 
 ### Ordering (FR-017)

@@ -76,7 +76,7 @@ def load_judgments(path: str, digest: Dict[str, Any]) -> Dict[str, Dict[str, Any
             raise InputError("unknown session key in judgments: %s" % key)
         if not isinstance(j, dict):
             raise InputError("judgment for %s is not an object" % key)
-        for flag in ("unanswered_agent", "task_finished"):
+        for flag in ("unanswered_agent", "task_finished", "pr_round_only"):
             if flag in j and not isinstance(j[flag], bool):
                 raise InputError("judgment %s.%s must be true or false" % (key, flag))
         for text in ("about", "stopped", "followup", "judgment_note"):
@@ -85,6 +85,7 @@ def load_judgments(path: str, digest: Dict[str, Any]) -> Dict[str, Dict[str, Any
         out[key] = {
             "unanswered_agent": bool(j.get("unanswered_agent", False)),
             "task_finished": bool(j.get("task_finished", False)),
+            "pr_round_only": bool(j.get("pr_round_only", False)),
             "about": _one_line(j.get("about"), RECAP_CHARS),
             "stopped": _one_line(j.get("stopped"), RECAP_CHARS),
             "followup": j["followup"] if (j.get("followup") or "").strip() else None,
@@ -168,6 +169,8 @@ def _evaluate_one(s, j, generated_at, stale_seconds, platform) -> Dict[str, Any]
     conv_ok = (s.get("conversation") or {}).get("status") == "found"
     unanswered = conv_ok and bool(j.get("unanswered_agent"))
     finished = conv_ok and bool(j.get("task_finished"))
+    # A finished round on someone's PR (triage, review replies) does not own the PR's wait.
+    round_done = finished and bool(j.get("pr_round_only"))
     clip = sig.get("clipboard") or {}
     clip_found = clip.get("status") == "found"
     items = (sig.get("unfinished") or {}).get("items") or []
@@ -191,7 +194,7 @@ def _evaluate_one(s, j, generated_at, stale_seconds, platform) -> Dict[str, Any]
             reason = "clipboard copy never pasted"
         else:
             reason = own_found[0].get("detail") or own_found[0]["kind"]
-    elif pr_state == "open":
+    elif pr_state == "open" and not round_done:
         category, rule, reason = WAITING_ON_OTHERS, 3, "PR open: " + pr_cur["url"]
     elif pr_state in ("merged", "closed") or finished:
         category, rule = DONE_CLOSE_IT, 4
@@ -199,6 +202,8 @@ def _evaluate_one(s, j, generated_at, stale_seconds, platform) -> Dict[str, Any]
             reason = "PR %s: %s" % (pr_state, pr_cur["url"])
         else:
             reason = "task finished: " + _note(j, "per conversation")
+            if pr_state == "open":
+                reason += "; PR still open: " + pr_cur["url"]
     else:
         category, rule = STALE_DECIDE, 5
         reason = _quiet_text(quiet_seconds, from_message)

@@ -58,9 +58,12 @@ def one(session, judgment=None, **kw):
     return evaluate([session], judgments, **kw)[0]
 
 
-def J(unanswered=False, finished=False, note=None, followup=None, about="About", stopped="Stopped"):
+def J(unanswered=False, finished=False, note=None, followup=None, about="About", stopped="Stopped",
+      round_only=None):
     d = {"unanswered_agent": unanswered, "task_finished": finished, "about": about,
          "stopped": stopped, "followup": followup}
+    if round_only is not None:
+        d["pr_round_only"] = round_only
     if note:
         d["judgment_note"] = note
     return d
@@ -135,6 +138,33 @@ class RulesTest(unittest.TestCase):
             self.assertIn("push state unknown (%s)" % cause, e["notes"])
         e = one(helpers.make_session(1, pr=pr_sig("closed")))
         self.assertEqual(e["reason"], "PR closed: https://github.com/me/app/pull/42")
+
+    def test_rule3_open_pr_beats_task_finished(self):
+        e = one(helpers.make_session(1, pr=pr_sig("open")), J(finished=True, round_only=False))
+        self.assertEqual((e["category"], e["rule"]), ("waiting_on_others", 3))
+
+    def test_rule4_finished_pr_round_on_open_pr(self):
+        # A triage or review round on a PR is done although the PR stays open.
+        s = helpers.make_session(1, pr=pr_sig("open"))
+        e = one(s, J(finished=True, round_only=True, note="review replies posted"))
+        self.assertEqual((e["category"], e["rule"]), ("done_close_it", 4))
+        self.assertEqual(e["reason"], "task finished: review replies posted; "
+                                      "PR still open: https://github.com/me/app/pull/42")
+        self.assertEqual(e["action"], {"verb": "close", "preselected": True})
+        # An unfinished round keeps waiting on others.
+        e = one(s, J(round_only=True))
+        self.assertEqual((e["category"], e["rule"]), ("waiting_on_others", 3))
+        # Own unfinished work still wins (rule 2).
+        s2 = helpers.make_session(1, pr=pr_sig("open"),
+                                  unfinished=unfinished(item("unpushed", detail="1 unpushed commits")))
+        e = one(s2, J(finished=True, round_only=True))
+        self.assertEqual((e["category"], e["rule"]), ("waiting_on_you", 2))
+
+    def test_pr_round_only_ignored_when_conversation_unreadable(self):
+        s = helpers.make_session(1, pr=pr_sig("open"))
+        s["conversation"] = {"status": "unknown", "cause": "unreadable"}
+        e = one(s, J(finished=True, round_only=True))
+        self.assertEqual((e["category"], e["rule"]), ("waiting_on_others", 3))
 
     def test_rule4_task_finished(self):
         e = one(helpers.make_session(1), J(finished=True, note="report written"))
@@ -330,6 +360,10 @@ class JudgmentsFileTest(unittest.TestCase):
         j = engine.load_judgments(p, self.doc)
         self.assertTrue(j[self.key]["task_finished"])
         self.assertLessEqual(len(j[self.key]["judgment_note"]), 80)
+        self.assertFalse(j[self.key]["pr_round_only"])  # default when left out
+        p = self.write({"format": "roundup-judgments", "version": 1,
+                        "sessions": {self.key: J(finished=True, round_only=True)}})
+        self.assertTrue(engine.load_judgments(p, self.doc)[self.key]["pr_round_only"])
 
     def test_invalid(self):
         bad = [
@@ -338,6 +372,7 @@ class JudgmentsFileTest(unittest.TestCase):
             {"format": "other", "version": 1, "sessions": {}},
             {"format": "roundup-judgments", "version": 1, "sessions": {"claude:unknown": J()}},
             {"format": "roundup-judgments", "version": 1, "sessions": {self.key: {"unanswered_agent": "yes"}}},
+            {"format": "roundup-judgments", "version": 1, "sessions": {self.key: {"pr_round_only": 1}}},
         ]
         for content in bad:
             with self.assertRaises(InputError, msg=str(content)[:60]):

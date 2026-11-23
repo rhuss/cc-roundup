@@ -66,7 +66,7 @@ The first line reads `Judge view: N sessions, ...`.
 
 ## 6. Judge
 
-Read `rules.md` next to this file before judging. Then read the judge view page by page (`--page 1`, `--page 2`, ... until the footer says `page M of M`; 20 sessions per page). For every session write the two judgments (`unanswered_agent`, `task_finished`), `about`, `stopped`, an optional `judgment_note` and a `followup` draft as `rules.md` describes. Write the result with your file-writing tool to `RUN/judgments.json` in the format from `rules.md`. Use only the session keys printed by the judge view.
+Read `rules.md` next to this file before judging. Then read the judge view page by page (`--page 1`, `--page 2`, ... until the footer says `page M of M`; 20 sessions per page). For every session write the three judgments (`unanswered_agent`, `task_finished`, `pr_round_only`), `about`, `stopped`, an optional `judgment_note` and a `followup` draft as `rules.md` describes. Write the result with your file-writing tool to `RUN/judgments.json` in the format from `rules.md`. Use only the session keys printed by the judge view.
 
 Do not show the judge view to the user. It is your working material.
 
@@ -81,7 +81,7 @@ Show the text output to the user as it is (in a code block or as plain text). Ke
 
 - Categories always come in the order *waiting on you*, *stale, decide*, *waiting on others*, *done, close it*, longest quiet first.
 - With 100 or more sessions the overview is compact (one line per session). Offer full recaps on request with `ROUNDUP overview --digest "RUN/digest.json" --judgments "RUN/judgments.json" --stale <threshold> --key <KEY>` (same threshold as the overview).
-- If the exit code is 4, the judgments file is malformed. Fix `judgments.json` (only keys from the judge view, booleans for the two judgments) and run the overview again.
+- If the exit code is 4, the judgments file is malformed. Fix `judgments.json` (only keys from the judge view, booleans for the three judgments) and run the overview again.
 
 Then tell the user what comes next: the close batch, then follow-ups one by one, then clipboard copy-backs one by one, then a short wait for the answers to the follow-ups, and that they can stop at any point.
 
