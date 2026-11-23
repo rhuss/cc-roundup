@@ -46,7 +46,8 @@ The skill arguments are free words:
   waiting on you, stale (decide), waiting on others, done (close it).
   Then, only after you confirm, in this order:
     1. close batch (confirmed once)
-    2. follow-up messages (one by one, through the agent's own channel)
+    2. follow-up messages (one by one, through the agent's own channel),
+       or a jump to the session's pane to answer there yourself
     3. clipboard copy-backs (one by one, macOS only)
   It waits up to 3 minutes for answers to sent follow-ups and ends with
   a report. You can stop at any step.
