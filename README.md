@@ -18,6 +18,7 @@ In Codex, invoke the `roundup` skill the same way, with the same optional words.
 
 - `stale=<duration>` sets when a quiet session counts as stale (`Nd`, `Nh` or `Nm`, default `3d`).
 - `archived` also includes archived workspaces.
+- `help` (or `--help`, `-h`) shows the usage and starts nothing.
 
 The review takes one read-only snapshot of all open top-level sessions (subagents, Ask Corgi helper chats and the session running the review are left out). The agent then reads the last few messages of each session, and you get an overview grouped by category. Each session gets a one-line reason and a recap of at most three lines: what it was about, where it stopped, and how long it has been quiet.
 
