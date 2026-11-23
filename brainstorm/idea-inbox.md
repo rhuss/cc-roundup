@@ -11,15 +11,6 @@ Ideas captured from code reviews for future brainstorming.
 
 > A second backend (plain Claude Code sessions, tmux) would need the same provider logic. Extract a provider-level module when that backend is added, and keep the adapter contract (`BackendSnapshot.interrupted`) stable.
 
-### corgi-strict-message-delivery
-
-- **Source**: deep-review
-- **Date**: 2026-11-22
-- **Reference**: 001-session-triage
-- **Summary**: `corgi message` falls back to typing into the pane when the agent channel disappears after roundup's pre-check. Roundup can only report this as failed.
-
-> Making follow-ups strictly channel-only needs a Corgi option (for example `--no-type`) or a heartbeat field in `corgi list`. That would be a Corgi change, which FR-030 kept out of scope for this feature.
-
 ### stale-run-directory-sweep
 
 - **Source**: deep-review
