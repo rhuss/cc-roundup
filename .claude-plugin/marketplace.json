@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "roundup",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "description": "Round up stray agent sessions: recap, categorize and close or follow up on open sessions across Corgi workspaces",
       "author": {
         "name": "Roland Huss",
